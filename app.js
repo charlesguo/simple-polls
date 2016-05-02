@@ -20,7 +20,8 @@ var io = require('socket.io').listen(server);
 // var mongoUri =  process.env.MONGODB_URI || 'mongodb://localhost/tradist';
 // mongoose.connect(mongoUri);
 
-app.set('port', process.env.VCAP_APP_PORT || 3000);
+// app.set('port', process.env.VCAP_APP_PORT || 3000);
+app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 // app.engine('html', require('ejs').renderFile);
