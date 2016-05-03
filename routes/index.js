@@ -30,8 +30,8 @@ exports.poll = function(req, res) {
 			var userChoice;
 			var totalVotes = 0;
 
-      console.log('user req.ip in entering the poll: ' + req.ip);
-      console.log('user x-forwarded-for in entering the poll: ' + req.header('x-forwarded-for'));
+      console.log('(POLL) user req.ip in entering the poll: ' + req.ip);
+      console.log('(POLL) user x-forwarded-for in entering the poll: ' + req.header('x-forwarded-for'));
 			// Loop through poll choices to determine if user has voted
 			// on this poll, and if so, what they selected
 			for(c in poll.choices) {
@@ -41,7 +41,7 @@ exports.poll = function(req, res) {
 					var vote = choice.votes[v];
 					totalVotes++;
 
-          console.log('ip(s) of past votes: ' + vote.ip + ',  vote.id: ' + vote._id);
+          console.log('(POLL) ip(s) of past votes: ' + vote.ip + ',  vote.id: ' + vote._id);
           // req.header('x-forwarded-for')
 					if(vote.ip ===  req.ip) {
             console.log('vote corresponding to the user existing vote: ' + vote._id);
@@ -88,7 +88,7 @@ exports.vote = function(socket) {
     // socket.handshake.headers['x-forwarded-for']
     var ip =  socket.request.connection.remoteAddress;
 
-    console.log('user trying to vote using: ' + ip);
+    console.log('(VOTE) user trying to vote using: ' + ip);
 
 		Poll.findById(data.poll_id, function(err, poll) {
 			var choice = poll.choices.id(data.choice);
@@ -109,7 +109,7 @@ exports.vote = function(socket) {
 						var vote = choice.votes[j];
 						rtnDoc.totalVotes++;
 						// rtnDoc.ip = ip;
-            console.log('ip(s) of past votes: ' + vote.ip);
+            console.log('(VOTE) ip(s) of past votes: ' + vote.ip);
 
 						if(vote.ip === ip) {
               console.log('cannot re-vote a question!');
