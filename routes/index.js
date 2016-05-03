@@ -31,6 +31,7 @@ exports.poll = function(req, res) {
 			var totalVotes = 0;
 
       console.log('user req.ip in entering the poll: ' + req.ip);
+      console.log('user x-forwarded-for in entering the poll: ' + req.header('x-forwarded-for'));
 			// Loop through poll choices to determine if user has voted
 			// on this poll, and if so, what they selected
 			for(c in poll.choices) {
@@ -40,10 +41,7 @@ exports.poll = function(req, res) {
 					var vote = choice.votes[v];
 					totalVotes++;
 
-
-          // console.log('req.header.x-forwarded: ' + req.header('x-forwarded-for'));
-          // if(vote.ip === (req.header('x-forwarded-for') || req.ip)) {
-					if(vote.ip === req.ip) {
+					if(vote.ip === req.header('x-forwarded-for') || req.ip) {
             console.log('vote corresponding to the user existing vote: ' + vote._id);
 						userVoted = true;
 						userChoice = { _id: choice._id, text: choice.text };
@@ -66,7 +64,7 @@ exports.poll = function(req, res) {
 exports.create = function(req, res) {
 
 	// Filter out choices with empty text
-	var choices = req.body.choices.filter(function(v) { return v.text != ''; });
+	var choices = req.body.choices.filter(function(dummy) { return dummy.text != ''; });
 			// Build up poll object to save
 	var pollObj = {question: req.body.question, choices: choices};
 
@@ -85,7 +83,7 @@ exports.create = function(req, res) {
 
 exports.vote = function(socket) {
 	socket.on('send:vote', function(data) {
-    var ip = socket.request.connection.remoteAddress;
+    var ip = socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
 
     console.log('user trying to vote using: ' + ip);
 
@@ -101,10 +99,10 @@ exports.vote = function(socket) {
 
 				// Loop through poll choices to determine if user has voted
 				// on this poll, and if so, what they selected
-				for(var i = 0, ln = doc.choices.length; i < ln; i++) {
+				for(var i = 0; i < doc.choices.length; i++) {
 					var choice = doc.choices[i];
 
-					for(var j = 0, jLn = choice.votes.length; j < jLn; j++) {
+					for(var j = 0; j < choice.votes.length; j++) {
 						var vote = choice.votes[j];
 						rtnDoc.totalVotes++;
 						// rtnDoc.ip = ip;
