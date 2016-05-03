@@ -1,19 +1,8 @@
 // Connect to MongoDB using Mongoose
-var mongoose = require('mongoose');
-// var db;
-// if (process.env.VCAP_SERVICES) {
-//    var env = JSON.parse(process.env.VCAP_SERVICES);
-//    db = mongoose.createConnection(env['mongodb-2.2'][0].credentials.url);
-// } else {
-//    db = mongoose.createConnection('localhost', 'simplepollsapp');
-// }
 var mongoose      = require('mongoose');
 var mongoUri =  process.env.MONGODB_URI || 'mongodb://localhost/simplepollsapp';
 mongoose.connect(mongoUri);
 
-// Get Poll schema and model
-// var PollSchema = require('../models/Poll.js').PollSchema;
-// var Poll = db.model('polls', PollSchema);
 var Poll = require('../models/Poll.js');
 
 // Main application view
@@ -51,6 +40,8 @@ exports.poll = function(req, res) {
 					totalVotes++;
 
 					if(vote.ip === (req.header('x-forwarded-for') || req.ip)) {
+            console.log('req.header.x-forwarded: ' + req.header('x-forwarded-for'));
+            console.log('req.ip: ' + req.ip);
 						userVoted = true;
 						userChoice = { _id: choice._id, text: choice.text };
 					}
