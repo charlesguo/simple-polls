@@ -26,10 +26,11 @@ exports.poll = function(req, res) {
 	// Find the poll by its ID, use lean as we won't be changing it
 	Poll.findById(pollId, '', { lean: true }, function(err, poll) {
 		if(poll) {
-			var userVoted = false,
-					userChoice,
-					totalVotes = 0;
+			var userVoted = false;
+			var userChoice;
+			var totalVotes = 0;
 
+      console.log('user req.ip in entering the poll: ' + req.ip);
 			// Loop through poll choices to determine if user has voted
 			// on this poll, and if so, what they selected
 			for(c in poll.choices) {
@@ -39,13 +40,11 @@ exports.poll = function(req, res) {
 					var vote = choice.votes[v];
 					totalVotes++;
 
-          console.log('vote.ip: ' + vote.ip)
-          console.log('req.header.x-forwarded: ' + req.header('x-forwarded-for'));
-          console.log('req.ip: ' + req.ip);
 
+          // console.log('req.header.x-forwarded: ' + req.header('x-forwarded-for'));
           // if(vote.ip === (req.header('x-forwarded-for') || req.ip)) {
 					if(vote.ip === req.ip) {
-
+            console.log('vote corresponding to the user existing vote: ' + vote._id);
 						userVoted = true;
 						userChoice = { _id: choice._id, text: choice.text };
 					}
@@ -55,9 +54,7 @@ exports.poll = function(req, res) {
 			// Attach info about user's past voting on this poll
 			poll.userVoted = userVoted;
 			poll.userChoice = userChoice;
-
 			poll.totalVotes = totalVotes;
-
 			res.json(poll);
 		} else {
 			res.json({error:true});
@@ -67,21 +64,21 @@ exports.poll = function(req, res) {
 
 // JSON API for creating a new poll
 exports.create = function(req, res) {
-	var reqBody = req.body,
-			// Filter out choices with empty text
-			choices = reqBody.choices.filter(function(v) { return v.text != ''; }),
+
+	// Filter out choices with empty text
+	var choices = req.body.choices.filter(function(v) { return v.text != ''; });
 			// Build up poll object to save
-			pollObj = {question: reqBody.question, choices: choices};
+	var pollObj = {question: req.body.question, choices: choices};
 
 	// Create poll model from built up poll object
 	var poll = new Poll(pollObj);
 
 	// Save poll to DB
-	poll.save(function(err, doc) {
-		if(err || !doc) {
+	poll.save(function(err, pollDoc) {
+		if(err || !pollDoc) {
 			throw 'Error';
 		} else {
-			res.json(doc);
+			res.json(pollDoc);
 		}
 	});
 };
@@ -90,16 +87,14 @@ exports.vote = function(socket) {
 	socket.on('send:vote', function(data) {
     var ip = socket.request.connection.remoteAddress;
 
-    console.log('socket.handshake ' + socket.handshake.headers['x-forwarded-for']);
-    console.log('remoteAddress: ' + socket.request.connection.remoteAddress);
-    console.log('ip: ' + ip);
+    console.log('user trying to vote using: ' + ip);
 
 		Poll.findById(data.poll_id, function(err, poll) {
 			var choice = poll.choices.id(data.choice);
 			choice.votes.push({ ip: ip });
 
 			poll.save(function(err, doc) {
-				var theDoc = {
+				var rtnDoc = {
 					question: doc.question, _id: doc._id, choices: doc.choices,
 					userVoted: false, totalVotes: 0
 				};
@@ -111,18 +106,20 @@ exports.vote = function(socket) {
 
 					for(var j = 0, jLn = choice.votes.length; j < jLn; j++) {
 						var vote = choice.votes[j];
-						theDoc.totalVotes++;
-						theDoc.ip = ip;
+						rtnDoc.totalVotes++;
+						// rtnDoc.ip = ip;
+            console.log('ip(s) of past votes: ' + vote.ip);
 
 						if(vote.ip === ip) {
-							theDoc.userVoted = true;
-							theDoc.userChoice = { _id: choice._id, text: choice.text };
+              console.log('cannot re-vote a question!');
+							rtnDoc.userVoted = true;
+							rtnDoc.userChoice = { _id: choice._id, text: choice.text };
 						}
 					}
 				}
 
-				socket.emit('myvote', theDoc);
-				socket.broadcast.emit('vote', theDoc);
+				socket.emit('myvote', rtnDoc);
+				socket.broadcast.emit('vote', rtnDoc);
 			});
 		});
 	});
