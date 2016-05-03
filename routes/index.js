@@ -88,7 +88,6 @@ exports.create = function(req, res) {
 
 exports.vote = function(socket) {
 	socket.on('send:vote', function(data) {
-		// var ip = socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
     var ip = socket.request.connection.remoteAddress;
 
     console.log('socket.handshake ' + socket.handshake.headers['x-forwarded-for']);
