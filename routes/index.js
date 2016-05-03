@@ -39,9 +39,12 @@ exports.poll = function(req, res) {
 					var vote = choice.votes[v];
 					totalVotes++;
 
-					if(vote.ip === (req.header('x-forwarded-for') || req.ip)) {
-            console.log('req.header.x-forwarded: ' + req.header('x-forwarded-for'));
-            console.log('req.ip: ' + req.ip);
+          console.log(vote.ip)
+          console.log('req.header.x-forwarded: ' + req.header('x-forwarded-for'));
+          console.log('req.ip: ' + req.ip);
+
+          // if(vote.ip === (req.header('x-forwarded-for') || req.ip)) {
+					if(vote.ip === req.ip) {
 						userVoted = true;
 						userChoice = { _id: choice._id, text: choice.text };
 					}
@@ -84,10 +87,11 @@ exports.create = function(req, res) {
 
 exports.vote = function(socket) {
 	socket.on('send:vote', function(data) {
-		var ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address.address;
+		// var ip = socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+    var ip = socket.request.connection.remoteAddress;
 
     console.log(socket.handshake.headers['x-forwarded-for']);
-    console.log(socket.handshake.address.address);
+    console.log(socket.request.connection.remoteAddress);
     console.log(ip);
 
 		Poll.findById(data.poll_id, function(err, poll) {
