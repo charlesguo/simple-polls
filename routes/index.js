@@ -39,12 +39,13 @@ exports.poll = function(req, res) {
 					var vote = choice.votes[v];
 					totalVotes++;
 
-          console.log(vote.ip)
+          console.log('vote.ip: ' + vote.ip)
           console.log('req.header.x-forwarded: ' + req.header('x-forwarded-for'));
           console.log('req.ip: ' + req.ip);
 
           // if(vote.ip === (req.header('x-forwarded-for') || req.ip)) {
 					if(vote.ip === req.ip) {
+
 						userVoted = true;
 						userChoice = { _id: choice._id, text: choice.text };
 					}
@@ -90,9 +91,9 @@ exports.vote = function(socket) {
 		// var ip = socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
     var ip = socket.request.connection.remoteAddress;
 
-    console.log(socket.handshake.headers['x-forwarded-for']);
-    console.log(socket.request.connection.remoteAddress);
-    console.log(ip);
+    console.log('socket.handshake ' + socket.handshake.headers['x-forwarded-for']);
+    console.log('remoteAddress: ' + socket.request.connection.remoteAddress);
+    console.log('ip: ' + ip);
 
 		Poll.findById(data.poll_id, function(err, poll) {
 			var choice = poll.choices.id(data.choice);
