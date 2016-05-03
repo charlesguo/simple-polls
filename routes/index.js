@@ -41,6 +41,7 @@ exports.poll = function(req, res) {
 					var vote = choice.votes[v];
 					totalVotes++;
 
+          console.log('ip(s) of past votes: ' + vote.ip + ',  vote.id: ' + vote._id);
           // req.header('x-forwarded-for')
 					if(vote.ip ===  req.ip) {
             console.log('vote corresponding to the user existing vote: ' + vote._id);
