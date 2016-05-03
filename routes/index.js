@@ -41,7 +41,8 @@ exports.poll = function(req, res) {
 					var vote = choice.votes[v];
 					totalVotes++;
 
-					if(vote.ip === req.header('x-forwarded-for') || req.ip) {
+          // req.header('x-forwarded-for')
+					if(vote.ip ===  req.ip) {
             console.log('vote corresponding to the user existing vote: ' + vote._id);
 						userVoted = true;
 						userChoice = { _id: choice._id, text: choice.text };
@@ -83,7 +84,8 @@ exports.create = function(req, res) {
 
 exports.vote = function(socket) {
 	socket.on('send:vote', function(data) {
-    var ip = socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+    // socket.handshake.headers['x-forwarded-for']
+    var ip =  socket.request.connection.remoteAddress;
 
     console.log('user trying to vote using: ' + ip);
 
@@ -97,8 +99,8 @@ exports.vote = function(socket) {
 					userVoted: false, totalVotes: 0
 				};
 
-				// Loop through poll choices to determine if user has voted
-				// on this poll, and if so, what they selected
+				// Loop through poll choices to check if user had voted
+				// on this poll, and if so, what was voted
 				for(var i = 0; i < doc.choices.length; i++) {
 					var choice = doc.choices[i];
 
