@@ -27,7 +27,7 @@ function PollItemCtrl($scope, $routeParams, socket, Poll) {
 				choiceId = $scope.poll.userVote;
 
 		if(choiceId) {
-			var voteObj = { poll_id: pollId, choice: choiceId };
+			var voteObj = { poll_id: pollId, choice: choiceId, socket_id: socket.id };
 			socket.emit('send:vote', voteObj);
 		} else {
 			alert('You must choose an option to vote for');
@@ -57,12 +57,12 @@ function PollNewCtrl($scope, $location, Poll) {
 			var choiceCount = 0;
 
 			// Loop through the choices, make sure at least two provided
-			for(var i = 0, ln = poll.choices.length; i < ln; i++) {
+			for(var i = 0; i < poll.choices.length; i++) {
 				var choice = poll.choices[i];
 
-        // text provided in each of the choices cannot be empty
+        // for a choice to be counted, associated text cannot be empty.
 				if(choice.text.length > 0) {
-					choiceCount++
+					choiceCount++;
 				}
 			}
 
@@ -76,7 +76,7 @@ function PollNewCtrl($scope, $location, Poll) {
 						// If there is no error, redirect to the main view
 						$location.path('polls');
 					} else {
-						alert('Could not create poll');
+						alert('Cannot create poll due to an API error.');
 					}
 				});
 			} else {

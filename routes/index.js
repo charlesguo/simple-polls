@@ -1,16 +1,14 @@
 // Connect to MongoDB using Mongoose
-var mongoose      = require('mongoose');
+var mongoose = require('mongoose');
 var mongoUri =  process.env.MONGODB_URI || 'mongodb://localhost/simplepollsapp';
 mongoose.connect(mongoUri);
-
 var Poll = require('../models/Poll.js');
 
-// Main application view
 exports.index = function(req, res) {
 	res.render('index');
 };
 
-// JSON API for list of polls
+// JSON API route for list of polls
 exports.list = function(req, res) {
 	// Query Mongo for polls, just get back the question text
 	Poll.find({}, 'question', function(error, polls) {
@@ -22,7 +20,6 @@ exports.list = function(req, res) {
 exports.poll = function(req, res) {
 	// Poll ID comes in the URL
 	var pollId = req.params.id;
-
 	// Find the poll by its ID, use lean as we won't be changing it
 	Poll.findById(pollId, '', { lean: true }, function(err, poll) {
 		if(poll) {
@@ -31,7 +28,6 @@ exports.poll = function(req, res) {
 			var totalVotes = 0;
 
       console.log('(POLL) user req.ip in entering the poll: ' + req.ip);
-      console.log('(POLL) user x-forwarded-for in entering the poll: ' + req.header('x-forwarded-for'));
 			// Loop through poll choices to determine if user has voted
 			// on this poll, and if so, what they selected
 			for(c in poll.choices) {
@@ -85,9 +81,7 @@ exports.create = function(req, res) {
 
 exports.vote = function(socket) {
 	socket.on('send:vote', function(data) {
-    // socket.handshake.headers['x-forwarded-for']
     var ip =  socket.request.connection.remoteAddress;
-
     console.log('(VOTE) user trying to vote using: ' + ip);
 
 		Poll.findById(data.poll_id, function(err, poll) {
@@ -100,8 +94,7 @@ exports.vote = function(socket) {
 					userVoted: false, totalVotes: 0
 				};
 
-				// Loop through poll choices to check if user had voted
-				// on this poll, and if so, what was voted
+				// rtnDoc needed to display choice after voting
 				for(var i = 0; i < doc.choices.length; i++) {
 					var choice = doc.choices[i];
 

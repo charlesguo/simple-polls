@@ -1,20 +1,41 @@
-<div class="page-header">
-	<h1>Poll List</h1>
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+  <div class="container">
+    <h1>Create Poll.<br>
+        Let People Vote.<br>
+        See Results.</h1>
+    <p> Use PollNow to view the results of polls in real-time.</p>
+
+    <div class="row">
+    	<div class="col-xs-5">
+    		<a class="btn btn-primary btn-default" href="#/new" role="button"><span class="glyphicon glyphicon-plus"></span> Create New Poll</a>
+    	</div>
+    	<div class="col-xs-7">
+    		<input type="text" class="form-control" ng-model="query" placeholder="Start typing to filter available polls">
+    	</div>
+    </div>
+
+    <!-- <p><a class="btn btn-primary btn-lg" href="#/new" role="button"><span class="glyphicon glyphicon-plus"></span> Create New Poll</a></p> -->
+  </div>
 </div>
-<div class="row">
+
+<div class="page-header">
+	<h3>Poll List</h3>
+</div>
+<!-- <div class="row">
 	<div class="col-xs-5">
-		<a href="#/new" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> New Poll</a>
+		<a href="#/new" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> Create New Poll</a>
 	</div>
 	<div class="col-xs-7">
-		<input type="text" class="form-control" ng-model="query" placeholder="Search for a poll">
+		<input type="text" class="form-control" ng-model="query" placeholder="Start typing to filter available polls">
 	</div>
-</div>
-<div class="row">
+</div> -->
+<!-- <div class="row">
 	<div class="col-xs-12"><hr></div>
-</div>
+</div> -->
 <div class="row" ng-switch on="polls.length">
 	<ul ng-switch-when="0">
-		<li><em>There are no polls created. Would you like to <a href="#/new">create the first one</a>?</li>
+		<li><em>There are no polls created. Do you want to <a href="#/new">create the first one</a>?</li>
 	</ul>
 	<ul ng-switch-default>
 		<li ng-repeat="poll in polls | filter:query">
